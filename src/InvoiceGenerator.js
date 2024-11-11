@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Box, CssBaseline, ThemeProvider, createTheme, MenuItem } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { TextField, Button, Container, Typography, Box, CssBaseline, ThemeProvider, createTheme, MenuItem, Modal } from '@mui/material';
 import jsPDF from 'jspdf';
 
-// Custom Material-UI theme
 const theme = createTheme({
   palette: {
     mode: 'dark',
     background: {
-      default: '#2c2c2c', // Anthrazit
+      default: '#2c2c2c',
     },
     primary: {
-      main: '#4caf50', // Grün für Buttons
+      main: '#4caf50',
     },
   },
   typography: {
@@ -24,7 +23,20 @@ function InvoiceGenerator() {
   const [items, setItems] = useState([{ description: '', quantity: 1, price: 0 }]);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [projectName, setProjectName] = useState('');
-  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]); // Today's date as default
+  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState({
+    name: 'Schröcker Fliesenverlegung',
+    owner: 'Inh. Marco Schröcker',
+    address: 'Lohholz 8, 84106 Volkenschwand',
+    phone: '0162/6853772',
+    email: 'jmmarco1994@gmail.com',
+    taxNumber: '12627120549',
+    taxOffice: 'Kelheim',
+    bankName: 'Raiffeisenbank Hallertau eG',
+    iban: 'DE 43 7016 9693 0100 8170 23',
+    bic: 'GENODEF1RHT',
+  });
 
   const handleLogoUpload = (event) => {
     const file = event.target.files[0];
@@ -69,21 +81,19 @@ function InvoiceGenerator() {
       const img = new Image();
       img.src = logo;
       const aspectRatio = img.width / img.height;
-      const imgWidth = 50; // Adjust width as needed
+      const imgWidth = 100;
       const imgHeight = imgWidth / aspectRatio;
-      pdf.addImage(img.src, 'PNG', 80, yOffset, imgWidth, imgHeight); // Centered horizontally
+      pdf.addImage(img.src, 'PNG', 80, yOffset, imgWidth, imgHeight);
       yOffset += imgHeight + 10;
 
-      // Continue with the rest of the PDF content after logo has loaded
       generatePDFContent(pdf, yOffset);
     } else {
-      // Continue with PDF generation if no logo is provided
       generatePDFContent(pdf, yOffset);
     }
   };
 
   const generatePDFContent = (pdf, yOffset) => {
-    // Add Header (Company Information)
+    pdf.setFont('helvetica', 'normal'); // Optional: Zurücksetzen auf normalen Stil, falls danach Text nicht fett sein soll
     pdf.setFontSize(12);
     pdf.text('Kundeninformationen', 10, yOffset);
     pdf.setFontSize(10);
@@ -93,24 +103,30 @@ function InvoiceGenerator() {
 
     const rightXOffset = 130;
     pdf.setFontSize(14);
-    pdf.text('Schröcker Fliesenverlegung', rightXOffset, yOffset);
+    pdf.setFont('helvetica', 'bold'); // Optional: Zurücksetzen auf normalen Stil, falls danach Text nicht fett sein soll
+    pdf.text(companyInfo.name, rightXOffset, yOffset);
+    pdf.setFont('helvetica', 'normal'); // Optional: Zurücksetzen auf normalen Stil, falls danach Text nicht fett sein soll
     pdf.setFontSize(10);
-    pdf.text('Inh. Marco Schröcker', rightXOffset, yOffset + 5);
-    pdf.text('Lohholz 8', rightXOffset, yOffset + 10);
-    pdf.text('84106 Volkenschwand', rightXOffset, yOffset + 15);
-    pdf.text('Tel.: 0162/6853772', rightXOffset, yOffset + 20);
-    pdf.text('Email: jmmarco1994@gmail.com', rightXOffset, yOffset + 25);
+    pdf.text(companyInfo.owner, rightXOffset, yOffset + 5);
+    pdf.text(companyInfo.address, rightXOffset, yOffset + 10);
+    pdf.text(`Tel.: ${companyInfo.phone}`, rightXOffset, yOffset + 15);
+    pdf.text(`Email: ${companyInfo.email}`, rightXOffset, yOffset + 20);
 
-    // Invoice Details
     yOffset += 40;
     pdf.setFontSize(12);
     pdf.text('Rechnung', 10, yOffset);
     pdf.setFontSize(10);
+    pdf.setFont()
+    pdf.setFont('helvetica', 'bold'); // Setze die Schriftart und den Stil auf fett
     pdf.text(`Rechnungsnummer: ${invoiceNumber || '[Rechnungsnummer]'}`, 10, yOffset + 6);
-    pdf.text(`Datum: ${invoiceDate}`, 10, yOffset + 12);
-    pdf.text(`Projekt: ${projectName || '[Projektname]'}`, 10, yOffset + 18);
+    pdf.setFont('helvetica', 'normal'); // Optional: Zurücksetzen auf normalen Stil, falls danach Text nicht fett sein soll
 
-    // Table Header
+    pdf.text(`Datum: ${invoiceDate}`, 10, yOffset + 12);
+    pdf.setFont('helvetica', 'bold'); // Optional: Zurücksetzen auf normalen Stil, falls danach Text nicht fett sein soll
+    pdf.text(`Projekt: ${projectName || '[Projektname]'}`, 10, yOffset + 18);
+    pdf.setFont('helvetica', 'normal'); // Optional: Zurücksetzen auf normalen Stil, falls danach Text nicht fett sein soll
+
+
     yOffset += 25;
     pdf.setFontSize(10);
     pdf.text('Bezeichnung', 10, yOffset);
@@ -122,7 +138,6 @@ function InvoiceGenerator() {
     pdf.line(10, yOffset, 200, yOffset);
     yOffset += 4;
 
-    // Table Content (Items)
     items.forEach((item) => {
       const quantity = parseFloat(item.quantity) || 0;
       const price = parseFloat(item.price) || 0;
@@ -133,79 +148,161 @@ function InvoiceGenerator() {
       yOffset += 6;
     });
 
-    // Add Total
     yOffset += 10;
     pdf.setFontSize(12);
     pdf.text(`Gesamtbetrag: €${calculateTotal()}`, 160, yOffset, { align: 'right' });
 
-    // Payment and Tax Notice
     yOffset += 15;
     pdf.setFontSize(10);
     pdf.text('Der Gesamtbetrag ist ab Erhalt der Rechnung zahlbar innerhalb von 7 Tagen ohne Abzug.', 10, yOffset);
     yOffset += 5;
     pdf.text('Es wird gemäß §19 Abs. 1 Umsatzsteuergesetz keine Umsatzsteuer erhoben.', 10, yOffset);
 
-    // Footer with 4 Columns
-    yOffset = 270;
+    yOffset = 260;
     pdf.setDrawColor(200, 200, 200);
-    pdf.line(10, yOffset, 200, yOffset); // Line to separate footer
+    pdf.line(10, yOffset, 200, yOffset);
 
-    // Column 1 - Company Info
     pdf.setFontSize(8);
     pdf.text('Firmeninformationen:', 10, yOffset + 10);
-    pdf.text('Fliesenverlegung Marco Schröcker', 10, yOffset + 15);
-    pdf.text('Lohholz 8, 84106 Volkenschwand', 10, yOffset + 20);
-    pdf.text('Mobil: 0162-6853772', 10, yOffset + 25);
-    pdf.text('E-Mail: jmmarco1994@gmail.com', 10, yOffset + 30);
+    pdf.text(companyInfo.name, 10, yOffset + 15);
+    pdf.text(companyInfo.address, 10, yOffset + 20);
+    pdf.text(`Mobil: ${companyInfo.phone}`, 10, yOffset + 25);
+    pdf.text(`E-Mail: ${companyInfo.email}`, 10, yOffset + 30);
 
-    // Column 2 - Tax Information
     pdf.text('Steuerdaten:', 60, yOffset + 10);
-    pdf.text('Steuer-Nr.: 12627120549', 60, yOffset + 15);
-    pdf.text('Finanzamt Kelheim', 60, yOffset + 20);
+    pdf.text(`Steuer-Nr.:: ${companyInfo.taxNumber}`, 60, yOffset + 15);
+    pdf.text(`Finanzamt: ${companyInfo.taxOffice}`, 60, yOffset + 20);
 
-    // Column 3 - Bank Details
-    pdf.text('Bankverbindung:', 95, yOffset + 10);
-    pdf.text('Raiffeisenbank Hallertau eG', 95, yOffset + 15);
-    pdf.text('IBAN: DE 43 7016 9693 0100 8170 23', 95, yOffset + 20);
-    pdf.text('BIC: GENODEF1RHT', 95, yOffset + 25);
+    pdf.text('Bankverbindung:', 100, yOffset + 10);
+    pdf.text(companyInfo.bankName, 100, yOffset + 15);
+    pdf.text(`IBAN: ${companyInfo.iban}`, 100, yOffset + 20);
+    pdf.text(`BIC: ${companyInfo.bic}`, 100, yOffset + 25);
 
-    // Column 4 - Contact Information
-    pdf.text('Kontakt:', 150, yOffset + 10);
-    pdf.text('E-Mail: jmmarco1994@gmail.com', 150, yOffset + 15);
-    pdf.text('Tel.: 0162-6853772', 150, yOffset + 20);
+    pdf.text('Kontakt:', 155, yOffset + 10);
+    pdf.text(`E-Mail: ${companyInfo.email}`, 155, yOffset + 15);
+    pdf.text(`Tel.: ${companyInfo.phone}`, 155, yOffset + 20);
 
-    // Save PDF
     pdf.save('rechnung.pdf');
+  };
+
+  const handleSettingsChange = (field, value) => {
+    setCompanyInfo(prevState => ({ ...prevState, [field]: value }));
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container
-        maxWidth="md"
-        sx={{
-          padding: '20px',
-          backgroundColor: '#2c2c2c',
-          borderRadius: '8px',
-          color: 'white',
-        }}
-      >
+      <Container maxWidth="md" sx={{ padding: '20px', backgroundColor: '#2c2c2c', borderRadius: '8px', color: 'white' }}>
         <Typography variant="h4" align="center" gutterBottom color="primary">
           Rechnungsgenerator
         </Typography>
+        <Button variant="outlined" color="primary" onClick={() => setSettingsOpen(true)} sx={{ mb: 2 }}>
+          Einstellungen
+        </Button>
+
+        <Modal open={settingsOpen} onClose={() => setSettingsOpen(false)}>
+  <Box
+    sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      bgcolor: 'background.paper',
+      padding: 4,
+      boxShadow: 24,
+      borderRadius: 1,
+      color: 'black',
+      maxHeight: '80vh', // Maximale Höhe für das Modal
+      overflowY: 'auto', // Ermöglicht vertikales Scrollen
+      width: '90%', // Passt die Breite an (optional, falls es helfen soll)
+      maxWidth: '500px', // Maximalbreite des Modals
+    }}
+  >
+<Typography variant="h6" sx={{ color: 'white' }}>
+  Änderungen sind nur temporär!
+</Typography>
+    <TextField
+      label="Firmenname"
+      fullWidth
+      margin="normal"
+      value={companyInfo.name}
+      onChange={(e) => handleSettingsChange('name', e.target.value)}
+    />
+    <TextField
+      label="Inhaber"
+      fullWidth
+      margin="normal"
+      value={companyInfo.owner}
+      onChange={(e) => handleSettingsChange('owner', e.target.value)}
+    />
+    <TextField
+      label="Adresse"
+      fullWidth
+      margin="normal"
+      value={companyInfo.address}
+      onChange={(e) => handleSettingsChange('address', e.target.value)}
+    />
+    <TextField
+      label="Telefonnummer"
+      fullWidth
+      margin="normal"
+      value={companyInfo.phone}
+      onChange={(e) => handleSettingsChange('phone', e.target.value)}
+    />
+    <TextField
+      label="E-Mail"
+      fullWidth
+      margin="normal"
+      value={companyInfo.email}
+      onChange={(e) => handleSettingsChange('email', e.target.value)}
+    />
+    <TextField
+      label="Steuernummer"
+      fullWidth
+      margin="normal"
+      value={companyInfo.taxNumber}
+      onChange={(e) => handleSettingsChange('taxNumber', e.target.value)}
+    />
+    <TextField
+      label="Finanzamt"
+      fullWidth
+      margin="normal"
+      value={companyInfo.taxOffice}
+      onChange={(e) => handleSettingsChange('taxOffice', e.target.value)}
+    />
+    <TextField
+      label="Bankname"
+      fullWidth
+      margin="normal"
+      value={companyInfo.bankName}
+      onChange={(e) => handleSettingsChange('bankName', e.target.value)}
+    />
+    <TextField
+      label="IBAN"
+      fullWidth
+      margin="normal"
+      value={companyInfo.iban}
+      onChange={(e) => handleSettingsChange('iban', e.target.value)}
+    />
+    <TextField
+      label="BIC"
+      fullWidth
+      margin="normal"
+      value={companyInfo.bic}
+      onChange={(e) => handleSettingsChange('bic', e.target.value)}
+    />
+    <Button variant="contained" color="primary" onClick={() => setSettingsOpen(false)} sx={{ mt: 2 }}>
+      Speichern
+    </Button>
+  </Box>
+</Modal>
+
         <Box textAlign="center" mb={2}>
           <Button variant="outlined" component="label" color="primary">
             Upload Logo
             <input type="file" accept="image/*" onChange={handleLogoUpload} hidden />
           </Button>
-          {logo && (
-            <Box
-              component="img"
-              src={logo}
-              alt="Company Logo"
-              sx={{ maxHeight: '100px', mt: 2 }}
-            />
-          )}
+          {logo && <Box component="img" src={logo} alt="Company Logo" sx={{ maxHeight: '100px', mt: 2 }} />}
         </Box>
 
         <Box display="flex" justifyContent="space-between" gap={2} mb={4}>

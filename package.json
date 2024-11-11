@@ -2,6 +2,7 @@
   "name": "rechnungs-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://BvarianBatzi.github.io/InvoiceGenerator",
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
@@ -16,6 +17,8 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
+  "predeploy": "npm run build",
+"deploy": "gh-pages -d build",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -39,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^6.2.0"
   }
 }

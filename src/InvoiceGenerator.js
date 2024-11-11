@@ -26,16 +26,16 @@ function InvoiceGenerator() {
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [companyInfo, setCompanyInfo] = useState({
-    name: 'Firmenname',
-    owner: 'Name des Inhabers',
-    address: 'Straße, Ort',
-    phone: '0176 12345678',
-    email: 'Firmenemail',
-    taxNumber: '123456789',
-    taxOffice: 'Finanzamtort',
-    bankName: 'Bankname',
-    iban: 'DE 12 3456 7898 7654 3210 12',
-    bic: 'BICVONBANK',
+    name: 'Schröcker Fliesenverlegung',
+    owner: 'Inh. Marco Schröcker',
+    address: 'Lohholz 8, 84106 Volkenschwand',
+    phone: '0162/6853772',
+    email: 'jmmarco1994@gmail.com',
+    taxNumber: '12627120549',
+    taxOffice: 'Kelheim',
+    bankName: 'Raiffeisenbank Hallertau eG',
+    iban: 'DE 43 7016 9693 0100 8170 23',
+    bic: 'GENODEF1RHT',
   });
 
   const handleLogoUpload = (event) => {

@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { TextField, Button, Container, Typography, Box, CssBaseline, ThemeProvider, createTheme, MenuItem, Modal, IconButton } from '@mui/material';
+import React, { useState } from 'react';
+import { TextField, Button, Container, Typography, Box, CssBaseline, ThemeProvider, createTheme, MenuItem, Modal } from '@mui/material';
 import jsPDF from 'jspdf';
-import OfferGenerator from './OfferGenerator'; // Import OfferGenerator component
-import { SwapHoriz } from '@mui/icons-material';
 
 const theme = createTheme({
   palette: {
@@ -19,36 +17,13 @@ const theme = createTheme({
   },
 });
 
-function App() {
-  const [isInvoiceMode, setIsInvoiceMode] = useState(true);
-
-  const toggleMode = () => {
-    setIsInvoiceMode(!isInvoiceMode);
-  };
-
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="md" sx={{ padding: '20px', backgroundColor: '#2c2c2c', borderRadius: '8px', color: 'white' }}>
-        <Box display="flex" justifyContent="flex-end">
-          <IconButton color="primary" onClick={toggleMode}>
-            <SwapHoriz />
-            {isInvoiceMode ? 'Wechsel zu Angebot' : 'Wechsel zu Rechnung'}
-          </IconButton>
-        </Box>
-        {isInvoiceMode ? <InvoiceGenerator /> : <OfferGenerator />}
-      </Container>
-    </ThemeProvider>
-  );
-}
-
-function InvoiceGenerator() {
+function OfferGenerator() {
   const [logo, setLogo] = useState(null);
   const [recipient, setRecipient] = useState({ gender: 'Herr', name: '', address: '' });
   const [items, setItems] = useState([{ description: '', quantity: 1, price: 0 }]);
-  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [offerNumber, setOfferNumber] = useState('');
   const [projectName, setProjectName] = useState('');
-  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [offerDate, setOfferDate] = useState(new Date().toISOString().split('T')[0]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [companyInfo, setCompanyInfo] = useState({
     name: 'Schröcker Fliesenverlegung',
@@ -101,6 +76,7 @@ function InvoiceGenerator() {
     const pdf = new jsPDF();
     let yOffset = 10;
 
+    // Add Logo (if present)
     if (logo) {
       const img = new Image();
       img.src = logo;
@@ -138,19 +114,23 @@ function InvoiceGenerator() {
 
     yOffset += 40;
     pdf.setFontSize(12);
-    pdf.text('Rechnung', 10, yOffset);
+    pdf.text('Angebot', 10, yOffset);
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'bold');
-    pdf.text(`Rechnungsnummer: ${invoiceNumber || '[Rechnungsnummer]'}`, 10, yOffset + 6);
+    pdf.text(`Angebotsnummer: ${offerNumber || '[Angebotsnummer]'}`, 10, yOffset + 6);
     pdf.setFont('helvetica', 'normal');
-
-    pdf.text(`Datum: ${invoiceDate}`, 10, yOffset + 12);
+    pdf.text(`Datum: ${offerDate}`, 10, yOffset + 12);
     pdf.setFont('helvetica', 'bold');
     pdf.text(`Projekt: ${projectName || '[Projektname]'}`, 10, yOffset + 18);
     pdf.setFont('helvetica', 'normal');
 
     yOffset += 25;
     pdf.setFontSize(10);
+    pdf.text(`Sehr geehrte${recipient.gender === 'Herr' ? 'r' : ''} ${recipient.gender} ${recipient.name || '[Kundenname]'},`, 10, yOffset);
+    yOffset += 5;
+    pdf.text('vielen Dank für Ihre Anfrage. Wir unterbreiten Ihnen hiermit folgendes Angebot:', 10, yOffset);
+    yOffset += 10;
+
     pdf.text('Bezeichnung', 10, yOffset);
     pdf.text('Menge', 80, yOffset);
     pdf.text('Einzelpreis (€)', 120, yOffset);
@@ -172,13 +152,11 @@ function InvoiceGenerator() {
 
     yOffset += 10;
     pdf.setFontSize(12);
-    pdf.text(`Gesamtbetrag: €${calculateTotal()}`, 160, yOffset, { align: 'right' });
+    pdf.text(`Angebotsbetrag: €${calculateTotal()}`, 160, yOffset, { align: 'right' });
 
     yOffset += 15;
     pdf.setFontSize(10);
-    pdf.text('Der Gesamtbetrag ist ab Erhalt der Rechnung innerhalb 14 Tagen zu zahlen.', 10, yOffset);
-    yOffset += 5;
-    pdf.text('Es wird gemäß §19 Abs. 1 Umsatzsteuergesetz keine Umsatzsteuer erhoben.', 10, yOffset);
+    pdf.text('Das Angebot ist bis zu 14 Tage gültig.', 10, yOffset);
 
     yOffset = 260;
     pdf.setDrawColor(200, 200, 200);
@@ -192,7 +170,7 @@ function InvoiceGenerator() {
     pdf.text(`E-Mail: ${companyInfo.email}`, 10, yOffset + 30);
 
     pdf.text('Steuerdaten:', 60, yOffset + 10);
-    pdf.text(`Steuer-Nr.: ${companyInfo.taxNumber}`, 60, yOffset + 15);
+    pdf.text(`Steuer-Nr.:: ${companyInfo.taxNumber}`, 60, yOffset + 15);
     pdf.text(`Finanzamt: ${companyInfo.taxOffice}`, 60, yOffset + 20);
 
     pdf.text('Bankverbindung:', 100, yOffset + 10);
@@ -204,7 +182,7 @@ function InvoiceGenerator() {
     pdf.text(`E-Mail: ${companyInfo.email}`, 155, yOffset + 15);
     pdf.text(`Tel.: ${companyInfo.phone}`, 155, yOffset + 20);
 
-    pdf.save('rechnung.pdf');
+    pdf.save('angebot.pdf');
   };
 
   const handleSettingsChange = (field, value) => {
@@ -216,11 +194,12 @@ function InvoiceGenerator() {
       <CssBaseline />
       <Container maxWidth="md" sx={{ padding: '20px', backgroundColor: '#2c2c2c', borderRadius: '8px', color: 'white' }}>
         <Typography variant="h4" align="center" gutterBottom color="primary">
-          Rechnungsgenerator
+          Angebotsgenerator
         </Typography>
         <Button variant="outlined" color="primary" onClick={() => setSettingsOpen(true)} sx={{ mb: 2 }}>
           Einstellungen
         </Button>
+
         <Modal open={settingsOpen} onClose={() => setSettingsOpen(false)}>
           <Box
             sx={{
@@ -329,7 +308,7 @@ function InvoiceGenerator() {
         <Box display="flex" justifyContent="space-between" gap={2} mb={4}>
           <Box flex={1}>
             <Typography variant="h6" gutterBottom color="primary">
-              Rechnungsinformationen
+              Angebotsinformationen
             </Typography>
             <TextField
               select
@@ -364,11 +343,11 @@ function InvoiceGenerator() {
 
         <Box display="flex" gap={2} mb={4}>
           <TextField
-            label="Rechnungsnummer"
+            label="Angebotsnummer"
             variant="outlined"
             fullWidth
-            value={invoiceNumber}
-            onChange={(e) => setInvoiceNumber(e.target.value)}
+            value={offerNumber}
+            onChange={(e) => setOfferNumber(e.target.value)}
           />
           <TextField
             label="Projektname"
@@ -378,12 +357,12 @@ function InvoiceGenerator() {
             onChange={(e) => setProjectName(e.target.value)}
           />
           <TextField
-            label="Rechnungsdatum"
+            label="Angebotsdatum"
             variant="outlined"
             fullWidth
             type="date"
-            value={invoiceDate}
-            onChange={(e) => setInvoiceDate(e.target.value)}
+            value={offerDate}
+            onChange={(e) => setOfferDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
           />
         </Box>
@@ -426,7 +405,7 @@ function InvoiceGenerator() {
         </Button>
 
         <Typography variant="h6" align="right" color="primary" sx={{ fontWeight: 'bold' }}>
-          Total: €{calculateTotal()}
+          Angebotsbetrag: €{calculateTotal()}
         </Typography>
 
         <Button variant="contained" color="primary" onClick={exportPDF} sx={{ mt: 2 }}>
@@ -437,4 +416,4 @@ function InvoiceGenerator() {
   );
 }
 
-export default App;
+export default OfferGenerator;

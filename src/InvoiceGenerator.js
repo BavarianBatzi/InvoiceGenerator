@@ -533,9 +533,6 @@ function InvoiceGenerator() {
           Gesamtbetrag: €{calculateTotal()}
         </Typography>
 
-        <Button variant="contained" color="primary" onClick={generatePDF} sx={{ mt: 2 }}>
-          PDF Exportieren
-        </Button>
 
         {pdfPreviewUrl && (
           <Box mt={4}>

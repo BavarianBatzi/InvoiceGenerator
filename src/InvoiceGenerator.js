@@ -105,15 +105,19 @@ function InvoiceGenerator() {
       const img = new Image();
       img.src = logo;
       const aspectRatio = img.width / img.height;
-      const imgWidth = 100;
+      const imgWidth = 100; // Fixed image width
       const imgHeight = imgWidth / aspectRatio;
-      pdf.addImage(img.src, 'PNG', 80, yOffset, imgWidth, imgHeight);
+      const pageWidth = pdf.internal.pageSize.getWidth(); // Get page width
+      const centerX = (pageWidth - imgWidth) / 2; // Calculate center position for the x-coordinate
+    
+      pdf.addImage(img.src, 'PNG', centerX, yOffset, imgWidth, imgHeight); // Center the image
       yOffset += imgHeight + 10;
-
+    
       generatePDFContent(pdf, yOffset);
     } else {
       generatePDFContent(pdf, yOffset);
     }
+    
   };
 
   const generatePDFContent = (pdf, yOffset) => {
@@ -124,9 +128,9 @@ function InvoiceGenerator() {
     pdf.text(`${recipient.gender}`, 10, yOffset + 5);
     pdf.text(recipient.name || '[Kundenname]', 10, yOffset + 10);
     pdf.text(recipient.address || '[Kundenadresse]', 10, yOffset + 15);
-
+  
     const rightXOffset = 130;
-    pdf.setFontSize(14);
+    pdf.setFontSize(12);
     pdf.setFont('helvetica', 'bold');
     pdf.text(companyInfo.name, rightXOffset, yOffset);
     pdf.setFont('helvetica', 'normal');
@@ -135,7 +139,7 @@ function InvoiceGenerator() {
     pdf.text(companyInfo.address, rightXOffset, yOffset + 10);
     pdf.text(`Tel.: ${companyInfo.phone}`, rightXOffset, yOffset + 15);
     pdf.text(`Email: ${companyInfo.email}`, rightXOffset, yOffset + 20);
-
+  
     yOffset += 40;
     pdf.setFontSize(12);
     pdf.text('Rechnung', 10, yOffset);
@@ -143,12 +147,12 @@ function InvoiceGenerator() {
     pdf.setFont('helvetica', 'bold');
     pdf.text(`Rechnungsnummer: ${invoiceNumber || '[Rechnungsnummer]'}`, 10, yOffset + 6);
     pdf.setFont('helvetica', 'normal');
-
+  
     pdf.text(`Datum: ${invoiceDate}`, 10, yOffset + 12);
     pdf.setFont('helvetica', 'bold');
     pdf.text(`Projekt: ${projectName || '[Projektname]'}`, 10, yOffset + 18);
     pdf.setFont('helvetica', 'normal');
-
+  
     yOffset += 25;
     pdf.setFontSize(10);
     pdf.text('Bezeichnung', 10, yOffset);
@@ -159,53 +163,67 @@ function InvoiceGenerator() {
     pdf.setDrawColor(200, 200, 200);
     pdf.line(10, yOffset, 200, yOffset);
     yOffset += 4;
-
+  
     items.forEach((item) => {
+      const descriptionLines = pdf.splitTextToSize(item.description || '[Beschreibung]', 70); // Wrap text to fit within 70 units width
+      const lineHeight = 6;
+      descriptionLines.forEach((line, i) => {
+        pdf.text(line, 10, yOffset + i * lineHeight);
+      });
+      const descriptionHeight = descriptionLines.length * lineHeight;
+  
       const quantity = parseFloat(item.quantity) || 0;
       const price = parseFloat(item.price) || 0;
-      pdf.text(item.description || '[Beschreibung]', 10, yOffset);
+  
+      // Print other columns aligned with the first line of the description
       pdf.text(`${quantity}`, 80, yOffset);
       pdf.text(`€${price.toFixed(2)}`, 120, yOffset);
       pdf.text(`€${(quantity * price).toFixed(2)}`, 160, yOffset);
-      yOffset += 6;
+  
+      // Adjust yOffset for the next item
+      yOffset += descriptionHeight + 4;
     });
-
+  
     yOffset += 10;
     pdf.setFontSize(12);
     pdf.text(`Gesamtbetrag: €${calculateTotal()}`, 160, yOffset, { align: 'right' });
-
+  
     yOffset += 15;
     pdf.setFontSize(10);
-    pdf.text('Der Gesamtbetrag ist ab Erhalt der Rechnung innerhalb 14 Tagen zu zahlen.', 10, yOffset);
-    yOffset += 5;
+    pdf.text('Der Gesamtbetrag ist ab Erhalt der Rechnung zahlbar innerhalb von 7 Tagen ohne Abzug.', 10, yOffset);
+    yOffset += 15;
+    pdf.setFontSize(8);
     pdf.text('Es wird gemäß §19 Abs. 1 Umsatzsteuergesetz keine Umsatzsteuer erhoben.', 10, yOffset);
-
+    yOffset += 5;
+    pdf.text('Wenn nicht anders angegeben entsprcht das Leistungsdatum dem Rechnungsdatum.', 10, yOffset);
+  
     yOffset = 260;
     pdf.setDrawColor(200, 200, 200);
     pdf.line(10, yOffset, 200, yOffset);
-
+  
     pdf.setFontSize(8);
     pdf.text('Firmeninformationen:', 10, yOffset + 10);
     pdf.text(companyInfo.name, 10, yOffset + 15);
     pdf.text(companyInfo.address, 10, yOffset + 20);
     pdf.text(`Mobil: ${companyInfo.phone}`, 10, yOffset + 25);
     pdf.text(`E-Mail: ${companyInfo.email}`, 10, yOffset + 30);
-
+  
     pdf.text('Steuerdaten:', 60, yOffset + 10);
     pdf.text(`Steuer-Nr.: ${companyInfo.taxNumber}`, 60, yOffset + 15);
     pdf.text(`Finanzamt: ${companyInfo.taxOffice}`, 60, yOffset + 20);
-
+  
     pdf.text('Bankverbindung:', 100, yOffset + 10);
     pdf.text(companyInfo.bankName, 100, yOffset + 15);
     pdf.text(`IBAN: ${companyInfo.iban}`, 100, yOffset + 20);
     pdf.text(`BIC: ${companyInfo.bic}`, 100, yOffset + 25);
-
+  
     pdf.text('Kontakt:', 155, yOffset + 10);
     pdf.text(`E-Mail: ${companyInfo.email}`, 155, yOffset + 15);
     pdf.text(`Tel.: ${companyInfo.phone}`, 155, yOffset + 20);
-
+  
     pdf.save('rechnung.pdf');
   };
+  
 
   const handleSettingsChange = (field, value) => {
     setCompanyInfo(prevState => ({ ...prevState, [field]: value }));

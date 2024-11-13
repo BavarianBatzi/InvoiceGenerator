@@ -526,7 +526,7 @@ function OfferGenerator() {
         </Box>
 
         <Typography variant="h6" align="right" color="primary" sx={{ fontWeight: 'bold' }}>
-          Angebotsbetrag: €{calculateTotal()}
+          Angebotsbetrag: € {calculateTotal()}
         </Typography>
 
 

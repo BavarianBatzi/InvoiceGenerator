@@ -248,8 +248,8 @@ function InvoiceGenerator() {
         runningSubtotal += quantity * price;
 
         pdf.text(`${quantity}`, 80, yOffset);
-        pdf.text(`€${price.toFixed(2)}`, 120, yOffset);
-        pdf.text(`€${(quantity * price).toFixed(2)}`, 160, yOffset);
+        pdf.text(`€ ${price.toFixed(2)}`, 120, yOffset);
+        pdf.text(`€ ${(quantity * price).toFixed(2)}`, 160, yOffset);
 
         yOffset += descriptionHeight + 4;
       }

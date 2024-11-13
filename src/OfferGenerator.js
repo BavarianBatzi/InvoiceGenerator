@@ -211,8 +211,8 @@ function OfferGenerator() {
 
     pdf.text('Bezeichnung', 10, yOffset);
     pdf.text('Menge', 80, yOffset);
-    pdf.text('Einzelpreis (€)', 120, yOffset);
-    pdf.text('Gesamt (€)', 160, yOffset);
+    pdf.text('Einzelpreis (€) ', 120, yOffset);
+    pdf.text('Gesamt (€) ', 160, yOffset);
     yOffset += 6;
     pdf.setDrawColor(200, 200, 200);
     pdf.line(10, yOffset, 200, yOffset);
@@ -224,7 +224,7 @@ function OfferGenerator() {
       if (item.type === 'category') {
         if (i > 0) {
           pdf.setFont('helvetica', 'bold');
-          pdf.text(`Zwischensumme: €${runningSubtotal.toFixed(2)}`, 160, yOffset);
+          pdf.text(`Zwischensumme: € ${runningSubtotal.toFixed(2)}`, 160, yOffset);
           yOffset += 10;
           addPageIfNeeded();
         }
@@ -248,19 +248,19 @@ function OfferGenerator() {
         runningSubtotal += quantity * price;
 
         pdf.text(`${quantity}`, 80, yOffset);
-        pdf.text(`€${price.toFixed(2)}`, 120, yOffset);
-        pdf.text(`€${(quantity * price).toFixed(2)}`, 160, yOffset);
+        pdf.text(`€ ${price.toFixed(2)}`, 120, yOffset);
+        pdf.text(`€ ${(quantity * price).toFixed(2)}`, 160, yOffset);
 
         yOffset += descriptionHeight + 4;
       }
     }
 
     pdf.setFont('helvetica', 'bold');
-    pdf.text(`Zwischensumme: €${runningSubtotal.toFixed(2)}`, 160, yOffset);
+    pdf.text(`Zwischensumme: € ${runningSubtotal.toFixed(2)}`, 160, yOffset);
     yOffset += 10;
 
     pdf.setFontSize(12);
-    pdf.text(`Angebotsbetrag: €${calculateTotal()}`, 130, yOffset);
+    pdf.text(`Angebotsbetrag: € ${calculateTotal()}`, 130, yOffset);
 
     yOffset += 15;
     pdf.setFontSize(10);

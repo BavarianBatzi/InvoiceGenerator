@@ -192,7 +192,7 @@ function OfferGenerator() {
 
     yOffset += 40;
     pdf.setFontSize(12);
-    pdf.text('Angebot', 10, yOffset);
+    pdf.text('unverbindliches Angebot', 10, yOffset);
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'bold');
     pdf.text(`Angebotsnummer: ${offerNumber || '[Angebotsnummer]'}`, 10, yOffset + 6);
@@ -531,13 +531,47 @@ function OfferGenerator() {
 
 
         {pdfPreviewUrl && (
-          <Box mt={4}>
-            <Typography variant="h6" gutterBottom color="primary">
-              PDF-Vorschau
-            </Typography>
-            <iframe src={pdfPreviewUrl} width="100%" height="500px" style={{ border: 'none' }} />
-          </Box>
-        )}
+  <>
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={() => {
+        const pdf = new jsPDF();
+        let yOffset = 10;
+
+        if (logo) {
+          const img = new Image();
+          img.src = logo;
+          const aspectRatio = img.width / img.height;
+          const imgWidth = 100;
+          const imgHeight = imgWidth / aspectRatio;
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const centerX = (pageWidth - imgWidth) / 2;
+
+          pdf.addImage(img.src, 'PNG', centerX, yOffset, imgWidth, imgHeight);
+          yOffset += imgHeight + 10;
+        }
+
+        generatePDFContent(pdf, yOffset);
+
+        const pdfBlob = pdf.output('blob');
+        const link = document.createElement('a');
+        const filename = `Angebot_${recipient.name || 'Unbekannt'}_${offerNumber || 'Unbekannt'}.pdf`;
+        link.href = URL.createObjectURL(pdfBlob);
+        link.download = filename;
+        link.click();
+      }}
+    >
+      Download Angebot PDF
+    </Button>
+    <Box mt={4}>
+      <Typography variant="h6" gutterBottom color="primary">
+        PDF-Vorschau
+      </Typography>
+      <iframe src={pdfPreviewUrl} width="100%" height="500px" style={{ border: 'none' }} />
+    </Box>
+  </>
+)}
       </Container>
     </ThemeProvider>
   );

@@ -269,7 +269,7 @@ function InvoiceGenerator() {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
     pdf.text('Es wird gemäß §19 Abs.1 Umsatzsteuergesetz keine Umsatzsteuer erhoben.', 10, yOffset);
-    yOffset +=5;
+    yOffset += 5;
     pdf.text('Wenn nicht anders angegeben entspricht das Leistungsdatum dem Rechnungsdatum.', 10, yOffset);
     renderFooter(pdf);
   };
@@ -413,6 +413,7 @@ function InvoiceGenerator() {
             </Button>
           </Box>
         </Modal>
+
         <Box display="flex" justifyContent="space-between" gap={2} mb={4}>
           <Box flex={1}>
             <Typography variant="h6" gutterBottom color="primary">
@@ -533,14 +534,47 @@ function InvoiceGenerator() {
           Gesamtbetrag: €{calculateTotal()}
         </Typography>
 
-
         {pdfPreviewUrl && (
-          <Box mt={4}>
-            <Typography variant="h6" gutterBottom color="primary">
-              PDF-Vorschau
-            </Typography>
-            <iframe src={pdfPreviewUrl} width="100%" height="500px" style={{ border: 'none' }} />
-          </Box>
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                const pdf = new jsPDF();
+                let yOffset = 10;
+
+                if (logo) {
+                  const img = new Image();
+                  img.src = logo;
+                  const aspectRatio = img.width / img.height;
+                  const imgWidth = 100;
+                  const imgHeight = imgWidth / aspectRatio;
+                  const pageWidth = pdf.internal.pageSize.getWidth();
+                  const centerX = (pageWidth - imgWidth) / 2;
+
+                  pdf.addImage(img.src, 'PNG', centerX, yOffset, imgWidth, imgHeight);
+                  yOffset += imgHeight + 10;
+                }
+
+                generatePDFContent(pdf, yOffset);
+
+                const pdfBlob = pdf.output('blob');
+                const link = document.createElement('a');
+                const filename = `Rechnung_${recipient.name || 'Unbekannt'}_${invoiceNumber || 'Unbekannt'}.pdf`;
+                link.href = URL.createObjectURL(pdfBlob);
+                link.download = filename;
+                link.click();
+              }}
+            >
+              Download PDF
+            </Button>
+            <Box mt={4}>
+              <Typography variant="h6" gutterBottom color="primary">
+                PDF-Vorschau
+              </Typography>
+              <iframe src={pdfPreviewUrl} width="100%" height="500px" style={{ border: 'none' }} />
+            </Box>
+          </>
         )}
       </Container>
     </ThemeProvider>

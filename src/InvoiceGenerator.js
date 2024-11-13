@@ -269,7 +269,7 @@ function InvoiceGenerator() {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
     pdf.text('Es wird gemäß §19 Abs.1 Umsatzsteuergesetz keine Umsatzsteuer erhoben.', 10, yOffset);
-    yOffset +=5;
+    yOffset += 5;
     pdf.text('Wenn nicht anders angegeben entspricht das Leistungsdatum dem Rechnungsdatum.', 10, yOffset);
     renderFooter(pdf);
   };
@@ -357,195 +357,198 @@ function InvoiceGenerator() {
               fullWidth
               margin="normal"
               value={companyInfo.address}
-              onChange={(e) => handleSettingsChange('address', e.target.value)}
-            />
-            <TextField
-              label="Telefonnummer"
-              fullWidth
-              margin="normal"
-              value={companyInfo.phone}
-              onChange={(e) => handleSettingsChange('phone', e.target.value)}
-            />
-            <TextField
-              label="E-Mail"
-              fullWidth
-              margin="normal"
-              value={companyInfo.email}
-              onChange={(e) => handleSettingsChange('email', e.target.value)}
-            />
-            <TextField
-              label="Steuernummer"
-              fullWidth
-              margin="normal"
-              value={companyInfo.taxNumber}
-              onChange={(e) => handleSettingsChange('taxNumber', e.target.value)}
-            />
-            <TextField
-              label="Finanzamt"
-              fullWidth
-              margin="normal"
-              value={companyInfo.taxOffice}
-              onChange={(e) => handleSettingsChange('taxOffice', e.target.value)}
-            />
-            <TextField
-              label="Bankname"
-              fullWidth
-              margin="normal"
-              value={companyInfo.bankName}
-              onChange={(e) => handleSettingsChange('bankName', e.target.value)}
-            />
-            <TextField
-              label="IBAN"
-              fullWidth
-              margin="normal"
-              value={companyInfo.iban}
-              onChange={(e) => handleSettingsChange('iban', e.target.value)}
-            />
-            <TextField
-              label="BIC"
-              fullWidth
-              margin="normal"
-              value={companyInfo.bic}
-              onChange={(e) => handleSettingsChange('bic', e.target.value)}
-            />
-            <Button variant="contained" color="primary" onClick={() => setSettingsOpen(false)} sx={{ mt: 2 }}>
-              Speichern
-            </Button>
-          </Box>
-        </Modal>
-        <Box display="flex" justifyContent="space-between" gap={2} mb={4}>
-          <Box flex={1}>
-            <Typography variant="h6" gutterBottom color="primary">
-              Rechnungsinformationen
-            </Typography>
-            <TextField
-              select
-              label="Geschlecht"
-              value={recipient.gender}
-              onChange={(e) => setRecipient({ ...recipient, gender: e.target.value })}
-              fullWidth
-              margin="normal"
-            >
-              <MenuItem value="Herr">Herr</MenuItem>
-              <MenuItem value="Frau">Frau</MenuItem>
-            </TextField>
-            <TextField
-              label="Kundenname"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={recipient.name}
-              onChange={(e) => setRecipient({ ...recipient, name: e.target.value })}
-            />
-            <TextField
-              label="Kundenadresse"
-              variant="outlined"
-              fullWidth
-              multiline
-              rows={3}
-              value={recipient.address}
-              onChange={(e) => setRecipient({ ...recipient, address: e.target.value })}
-            />
-          </Box>
-        </Box>
-
-        <Box display="flex" gap={2} mb={4}>
-          <TextField
-            label="Rechnungsnummer"
-            variant="outlined"
-            fullWidth
-            value={invoiceNumber}
-            onChange={(e) => setInvoiceNumber(e.target.value)}
-          />
-          <TextField
-            label="Projektname"
-            variant="outlined"
-            fullWidth
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-          />
-          <TextField
-            label="Rechnungsdatum"
-            variant="outlined"
-            fullWidth
-            type="date"
-            value={invoiceDate}
-            onChange={(e) => setInvoiceDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Box>
-
-        <Typography variant="h6" gutterBottom color="primary">
-          Positionen
-        </Typography>
-        {items.map((item, index) => (
-          <Box key={index} display="flex" gap={2} mb={2} alignItems="center">
-            {item.type === 'category' ? (
+              onChange={(e) =>             handleSettingsChange('address', e.target.value)}
+              />
               <TextField
-                label="Kategorie"
+                label="Telefonnummer"
+                fullWidth
+                margin="normal"
+                value={companyInfo.phone}
+                onChange={(e) => handleSettingsChange('phone', e.target.value)}
+              />
+              <TextField
+                label="E-Mail"
+                fullWidth
+                margin="normal"
+                value={companyInfo.email}
+                onChange={(e) => handleSettingsChange('email', e.target.value)}
+              />
+              <TextField
+                label="Steuernummer"
+                fullWidth
+                margin="normal"
+                value={companyInfo.taxNumber}
+                onChange={(e) => handleSettingsChange('taxNumber', e.target.value)}
+              />
+              <TextField
+                label="Finanzamt"
+                fullWidth
+                margin="normal"
+                value={companyInfo.taxOffice}
+                onChange={(e) => handleSettingsChange('taxOffice', e.target.value)}
+              />
+              <TextField
+                label="Bankname"
+                fullWidth
+                margin="normal"
+                value={companyInfo.bankName}
+                onChange={(e) => handleSettingsChange('bankName', e.target.value)}
+              />
+              <TextField
+                label="IBAN"
+                fullWidth
+                margin="normal"
+                value={companyInfo.iban}
+                onChange={(e) => handleSettingsChange('iban', e.target.value)}
+              />
+              <TextField
+                label="BIC"
+                fullWidth
+                margin="normal"
+                value={companyInfo.bic}
+                onChange={(e) => handleSettingsChange('bic', e.target.value)}
+              />
+              <Button variant="contained" color="primary" onClick={() => setSettingsOpen(false)} sx={{ mt: 2 }}>
+                Speichern
+              </Button>
+            </Box>
+          </Modal>
+  
+          <Box display="flex" justifyContent="space-between" gap={2} mb={4}>
+            <Box flex={1}>
+              <Typography variant="h6" gutterBottom color="primary">
+                Rechnungsinformationen
+              </Typography>
+              <TextField
+                select
+                label="Geschlecht"
+                value={recipient.gender}
+                onChange={(e) => setRecipient({ ...recipient, gender: e.target.value })}
+                fullWidth
+                margin="normal"
+              >
+                <MenuItem value="Herr">Herr</MenuItem>
+                <MenuItem value="Frau">Frau</MenuItem>
+              </TextField>
+              <TextField
+                label="Kundenname"
                 variant="outlined"
                 fullWidth
-                value={item.description}
-                onChange={(e) => handleChange(e, index, 'description')}
+                margin="normal"
+                value={recipient.name}
+                onChange={(e) => setRecipient({ ...recipient, name: e.target.value })}
               />
-            ) : (
-              <>
+              <TextField
+                label="Kundenadresse"
+                variant="outlined"
+                fullWidth
+                multiline
+                rows={3}
+                value={recipient.address}
+                onChange={(e) => setRecipient({ ...recipient, address: e.target.value })}
+              />
+            </Box>
+          </Box>
+  
+          <Box display="flex" gap={2} mb={4}>
+            <TextField
+              label="Rechnungsnummer"
+              variant="outlined"
+              fullWidth
+              value={invoiceNumber}
+              onChange={(e) => setInvoiceNumber(e.target.value)}
+            />
+            <TextField
+              label="Projektname"
+              variant="outlined"
+              fullWidth
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+            />
+            <TextField
+              label="Rechnungsdatum"
+              variant="outlined"
+              fullWidth
+              type="date"
+              value={invoiceDate}
+              onChange={(e) => setInvoiceDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
+  
+          <Typography variant="h6" gutterBottom color="primary">
+            Positionen
+          </Typography>
+          {items.map((item, index) => (
+            <Box key={index} display="flex" gap={2} mb={2} alignItems="center">
+              {item.type === 'category' ? (
                 <TextField
-                  label="Beschreibung"
+                  label="Kategorie"
                   variant="outlined"
                   fullWidth
                   value={item.description}
                   onChange={(e) => handleChange(e, index, 'description')}
                 />
-                <TextField
-                  label="Anzahl"
-                  variant="outlined"
-                  type="number"
-                  value={item.quantity}
-                  onChange={(e) => handleChange(e, index, 'quantity')}
-                  sx={{ width: '100px' }}
-                />
-                <TextField
-                  label="Preis"
-                  variant="outlined"
-                  type="number"
-                  value={item.price}
-                  onChange={(e) => handleChange(e, index, 'price')}
-                  sx={{ width: '100px' }}
-                />
-              </>
-            )}
-            <Button variant="outlined" color="secondary" onClick={() => handleRemoveItem(index)}>
-              <DeleteIcon />
+              ) : (
+                <>
+                  <TextField
+                    label="Beschreibung"
+                    variant="outlined"
+                    fullWidth
+                    value={item.description}
+                    onChange={(e) => handleChange(e, index, 'description')}
+                  />
+                  <TextField
+                    label="Anzahl"
+                    variant="outlined"
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => handleChange(e, index, 'quantity')}
+                    sx={{ width: '100px' }}
+                  />
+                  <TextField
+                    label="Preis"
+                    variant="outlined"
+                    type="number"
+                    value={item.price}
+                    onChange={(e) => handleChange(e, index, 'price')}
+                    sx={{ width: '100px' }}
+                  />
+                </>
+              )}
+              <Button variant="outlined" color="secondary" onClick={() => handleRemoveItem(index)}>
+                <DeleteIcon />
+              </Button>
+            </Box>
+          ))}
+          <Box display="flex" gap={2} mb={3}>
+            <Button variant="contained" color="primary" onClick={handleAddItem}>
+              Position hinzufügen
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleAddCategory}>
+              Kategorie hinzufügen
             </Button>
           </Box>
-        ))}
-        <Box display="flex" gap={2} mb={3}>
-          <Button variant="contained" color="primary" onClick={handleAddItem}>
-            Position hinzufügen
-          </Button>
-          <Button variant="contained" color="primary" onClick={handleAddCategory}>
-            Kategorie hinzufügen
-          </Button>
-        </Box>
-
-        <Typography variant="h6" align="right" color="primary" sx={{ fontWeight: 'bold' }}>
-          Gesamtbetrag: €{calculateTotal()}
-        </Typography>
-
-
-        {pdfPreviewUrl && (
-          <Box mt={4}>
-            <Typography variant="h6" gutterBottom color="primary">
-              PDF-Vorschau
-            </Typography>
-            <iframe src={pdfPreviewUrl} width="100%" height="500px" style={{ border: 'none' }} />
-          </Box>
-        )}
-      </Container>
-    </ThemeProvider>
-  );
-}
-
-export default InvoiceGenerator;
-
+  
+          <Typography variant="h6" align="right" color="primary" sx={{ fontWeight: 'bold' }}>
+            Gesamtbetrag: €{calculateTotal()}
+          </Typography>
+  
+          {pdfPreviewUrl && (
+            <Box mt={4}>
+              <Typography variant="h6" gutterBottom color="primary">
+                PDF-Vorschau
+              </Typography>
+              <object data={pdfPreviewUrl} type="application/pdf" width="100%" height="500px">
+                Ihr Browser unterstützt keine PDF-Anzeige. Bitte laden Sie das Dokument herunter.
+                <a href={pdfPreviewUrl} download="Vorschau.pdf">Herunterladen</a>
+              </object>
+            </Box>
+          )}
+        </Container>
+      </ThemeProvider>
+    );
+  }
+  
+  export default InvoiceGenerator;
+  

@@ -48,13 +48,13 @@ function OfferGenerator() {
   const [companyInfo, setCompanyInfo] = useState({
     name: 'Schröcker Fliesenverlegung',
     owner: 'Inh. Marco Schröcker',
-    address: 'Lohholz 8, 84106 Volkenschwand',
+    address: 'Hochstraße 3, 84101 Obersüßbach',
     phone: '0162/6853772',
     email: 'jmmarco1994@gmail.com',
     taxNumber: '12627120549',
     taxOffice: 'Kelheim',
     bankName: 'Raiffeisenbank Hallertau eG',
-    iban: 'DE 43 7016 9693 0100 8170 23',
+    iban: 'DE43 7016 9693 0100 8170 23',
     bic: 'GENODEF1RHT',
   });
 

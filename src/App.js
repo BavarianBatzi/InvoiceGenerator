@@ -1,10 +1,17 @@
-import React from 'react';
-import InvoiceGenerator from './InvoiceGenerator'; // Importieren der neuen Komponente
+import React, { useState } from 'react';
+import InvoiceGenerator from './InvoiceGenerator';
+import Login from './Login';
 
 function App() {
+  const [user, setUser] = useState(null);
+
   return (
     <div>
-      <InvoiceGenerator />
+      {user ? (
+        <InvoiceGenerator />
+      ) : (
+        <Login onLogin={setUser} />
+      )}
     </div>
   );
 }

@@ -15,6 +15,7 @@ function Login({ onLogin }) {
       const passwordHash = CryptoJS.PBKDF2(password, salt, {
         keySize: 256 / 32,
         iterations: 1000,
+        hasher: CryptoJS.algo.SHA512,
       }).toString(CryptoJS.enc.Hex);
       const res = await fetch('/api/login', {
         method: 'POST',

@@ -126,153 +126,205 @@ function InvoiceGenerator() {
     setPdfPreviewUrl(pdfUrl);
   };
 
-  const generatePDFContent = (pdf, yOffset) => {
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const bottomMargin = 30;
+  const generatePDFContent = (pdf, startYOffset) => {
+  // === Konstanten passend zu deinem Footer ===
+  const TOP_MARGIN = 10;
+  const FOOTER_HEIGHT = 25; // muss zur Geometrie in renderFooter passen
+  const LINE_H = 6;
 
-    const addPageIfNeeded = () => {
-      if (yOffset >= pageHeight - bottomMargin) {
-        renderFooter(pdf);
-        pdf.addPage();
-        yOffset = 10;
-        renderHeader();
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(10);
-      }
-    };
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const footerTop = () => pageHeight - FOOTER_HEIGHT;
 
-    const renderFooter = (pdf) => {
-      const footerYOffset = pageHeight - 25;
-      pdf.setFontSize(8);
-      pdf.setDrawColor(200, 200, 200);
-      pdf.line(10, footerYOffset - 5, 200, footerYOffset - 5);
+  let yOffset = startYOffset;
 
-      pdf.text('Firmeninformationen:', 10, footerYOffset);
-      pdf.text(companyInfo.name, 10, footerYOffset + 5);
-      pdf.text(companyInfo.address, 10, footerYOffset + 10);
-      pdf.text(`Mobil: ${companyInfo.phone}`, 10, footerYOffset + 15);
-      pdf.text(`E-Mail: ${companyInfo.email}`, 10, footerYOffset + 20);
+  // === Footer/Head/Tabellenkopf ===
+  const renderFooter = (pdfArg) => {
+    const y = pageHeight - FOOTER_HEIGHT;
+    pdfArg.setFontSize(8);
+    pdfArg.setDrawColor(200, 200, 200);
+    pdfArg.line(10, y - 5, 200, y - 5);
 
-      pdf.text('Steuerdaten:', 60, footerYOffset);
-      pdf.text(`Steuer-Nr.: ${companyInfo.taxNumber}`, 60, footerYOffset + 5);
-      pdf.text(`Finanzamt: ${companyInfo.taxOffice}`, 60, footerYOffset + 10);
+    pdfArg.text('Firmeninformationen:', 10, y);
+    pdfArg.text(companyInfo.name, 10, y + 5);
+    pdfArg.text(companyInfo.address, 10, y + 10);
+    pdfArg.text(`Mobil: ${companyInfo.phone}`, 10, y + 15);
+    pdfArg.text(`E-Mail: ${companyInfo.email}`, 10, y + 20);
 
-      pdf.text('Bankverbindung:', 100, footerYOffset);
-      pdf.text(companyInfo.bankName, 100, footerYOffset + 5);
-      pdf.text(`IBAN: ${companyInfo.iban}`, 100, footerYOffset + 10);
-      pdf.text(`BIC: ${companyInfo.bic}`, 100, footerYOffset + 15);
+    pdfArg.text('Steuerdaten:', 60, y);
+    pdfArg.text(`Steuer-Nr.: ${companyInfo.taxNumber}`, 60, y + 5);
+    pdfArg.text(`Finanzamt: ${companyInfo.taxOffice}`, 60, y + 10);
 
-      pdf.text('Kontakt:', 155, footerYOffset);
-      pdf.text(`E-Mail: ${companyInfo.email}`, 155, footerYOffset + 5);
-      pdf.text(`Tel.: ${companyInfo.phone}`, 155, footerYOffset + 10);
-    };
+    pdfArg.text('Bankverbindung:', 100, y);
+    pdfArg.text(companyInfo.bankName, 100, y + 5);
+    pdfArg.text(`IBAN: ${companyInfo.iban}`, 100, y + 10);
+    pdfArg.text(`BIC: ${companyInfo.bic}`, 100, y + 15);
 
-    const renderHeader = () => {
-      // Optional: Header-Inhalte für neue Seiten hier hinzufügen
-    };
+    pdfArg.text('Kontakt:', 155, y);
+    pdfArg.text(`E-Mail: ${companyInfo.email}`, 155, y + 5);
+    pdfArg.text(`Tel.: ${companyInfo.phone}`, 155, y + 10);
+  };
 
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(12);
-    pdf.text('Kundeninformationen', 10, yOffset);
+  const renderHeader = () => {
+    // Optional: Dokumenttitel/Logo klein auf Folgeseiten
+  };
+
+  const renderTableHeader = () => {
     pdf.setFontSize(10);
-    pdf.text(`${recipient.gender}`, 10, yOffset + 5);
-    pdf.text(recipient.name || '[Kundenname]', 10, yOffset + 10);
-    pdf.text(recipient.address || '[Kundenadresse]', 10, yOffset + 15);
-
-    const rightXOffset = 130;
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(companyInfo.name, rightXOffset, yOffset);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(10);
-    pdf.text(companyInfo.owner, rightXOffset, yOffset + 5);
-    pdf.text(companyInfo.address, rightXOffset, yOffset + 10);
-    pdf.text(`Tel.: ${companyInfo.phone}`, rightXOffset, yOffset + 15);
-    pdf.text(`Email: ${companyInfo.email}`, rightXOffset, yOffset + 20);
-
-    yOffset += 40;
-    pdf.setFontSize(12);
-    pdf.text('Rechnung', 10, yOffset);
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`Rechnungsnummer: ${invoiceNumber || '[Rechnungsnummer]'}`, 10, yOffset + 6);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Datum: ${invoiceDate}`, 10, yOffset + 12);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`Projekt: ${projectName || '[Projektname]'}`, 10, yOffset + 18);
-    pdf.setFont('helvetica', 'normal');
-
-    yOffset += 25;
-    pdf.setFontSize(10);
-    pdf.text(`Sehr geehrte${recipient.gender === 'Herr' ? 'r' : ''} ${recipient.gender} ${recipient.name || '[Kundenname]'},`, 10, yOffset);
-    yOffset += 5;
-    pdf.text('vielen Dank für die Zusammenarbeit. Hiermit stellen wir Ihnen folgende Leistungen in Rechnung:', 10, yOffset);
-    yOffset += 10;
-
     pdf.text('Bezeichnung', 10, yOffset);
     pdf.text('Menge', 80, yOffset);
-    pdf.text('Einzelpreis (€) ', 120, yOffset);
-    pdf.text('Gesamt (€) ', 160, yOffset);
+    pdf.text('Einzelpreis (€)', 120, yOffset);
+    pdf.text('Gesamt (€)', 160, yOffset);
     yOffset += 6;
     pdf.setDrawColor(200, 200, 200);
     pdf.line(10, yOffset, 200, yOffset);
     yOffset += 4;
+  };
 
-    let runningSubtotal = 0;
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type === 'category') {
-        if (i > 0) {
-          pdf.setFont('helvetica', 'bold');
-          pdf.text(`Zwischensumme: € ${runningSubtotal.toFixed(2)}`, 160, yOffset);
-          yOffset += 10;
-          addPageIfNeeded();
-        }
-        runningSubtotal = 0;
+  // === Kern: Platzprüfung vor JEDEM Block ===
+  const ensureSpace = (needed, { withTableHeader = false } = {}) => {
+    if (yOffset + needed > footerTop()) {
+      // Seite sauber abschließen
+      renderFooter(pdf);
+      pdf.addPage();
+      yOffset = TOP_MARGIN;
+      renderHeader();
+      if (withTableHeader) renderTableHeader();
+    }
+  };
+
+  // === Kopfbereich Kunde + Firma ===
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(12);
+  pdf.text('Kundeninformationen', 10, yOffset);
+  pdf.setFontSize(10);
+  pdf.text(`${recipient.gender}`, 10, yOffset + 5);
+  pdf.text(recipient.name || '[Kundenname]', 10, yOffset + 10);
+  pdf.text(recipient.address || '[Kundenadresse]', 10, yOffset + 15);
+
+  const rightXOffset = 130;
+  pdf.setFontSize(14);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text(companyInfo.name, rightXOffset, yOffset);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(10);
+  pdf.text(companyInfo.owner, rightXOffset, yOffset + 5);
+  pdf.text(companyInfo.address, rightXOffset, yOffset + 10);
+  pdf.text(`Tel.: ${companyInfo.phone}`, rightXOffset, yOffset + 15);
+  pdf.text(`Email: ${companyInfo.email}`, rightXOffset, yOffset + 20);
+
+  yOffset += 40;
+  ensureSpace(30);
+
+  pdf.setFontSize(12);
+  pdf.text('Rechnung', 10, yOffset);
+  pdf.setFontSize(10);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text(`Rechnungsnummer: ${invoiceNumber || '[Rechnungsnummer]'}`, 10, yOffset + 6);
+  pdf.setFont('helvetica', 'normal');
+  pdf.text(`Datum: ${invoiceDate}`, 10, yOffset + 12);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text(`Projekt: ${projectName || '[Projektname]'}`, 10, yOffset + 18);
+  pdf.setFont('helvetica', 'normal');
+
+  yOffset += 25;
+
+  // Anrede
+  let anrede = 'Sehr geehrte';
+  if (recipient.gender === 'Herr') anrede = 'Sehr geehrter';
+  // Fam. bleibt "Sehr geehrte"
+  ensureSpace(12);
+  pdf.setFontSize(10);
+  pdf.text(`${anrede} ${recipient.gender} ${recipient.name || '[Kundenname]'},`, 10, yOffset);
+  yOffset += 5;
+
+  ensureSpace(10);
+  pdf.text('vielen Dank für die Zusammenarbeit. Hiermit stellen wir Ihnen folgende Leistungen in Rechnung:', 10, yOffset);
+  yOffset += 10;
+
+  // Tabellenkopf
+  ensureSpace(16, { withTableHeader: true });
+  renderTableHeader();
+
+  // === Positionen ===
+  let runningSubtotal = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (item.type === 'category') {
+      // Zwischensumme vor neuer Kategorie
+      if (i > 0) {
+        ensureSpace(10, { withTableHeader: true });
         pdf.setFont('helvetica', 'bold');
-        pdf.text(item.description || '[Kategorie]', 10, yOffset);
-        pdf.setFont('helvetica', 'normal');
-        yOffset += 8;
-        addPageIfNeeded();
-      } else {
-        const descriptionLines = pdf.splitTextToSize(item.description || '[Beschreibung]', 70);
-        const lineHeight = 6;
-        descriptionLines.forEach((line, lineIndex) => {
-          addPageIfNeeded();
-          pdf.text(line, 10, yOffset + lineIndex * lineHeight);
-        });
-        const descriptionHeight = descriptionLines.length * lineHeight;
-
-        const quantity = parseFloat(item.quantity) || 0;
-        const price = parseFloat(item.price) || 0;
-        runningSubtotal += quantity * price;
-
-        pdf.text(`${quantity}`, 80, yOffset);
-        pdf.text(`€ ${price.toFixed(2)}`, 120, yOffset);
-        pdf.text(`€ ${(quantity * price).toFixed(2)}`, 160, yOffset);
-
-        yOffset += descriptionHeight + 4;
+        pdf.text(`Zwischensumme: € ${runningSubtotal.toFixed(2)}`, 160, yOffset);
+        yOffset += 10;
       }
+      runningSubtotal = 0;
+
+      // Kategoriezeile
+      ensureSpace(8, { withTableHeader: true });
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(item.description || '[Kategorie]', 10, yOffset);
+      pdf.setFont('helvetica', 'normal');
+      yOffset += 8;
+      continue;
     }
 
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`Zwischensumme: € ${runningSubtotal.toFixed(2)}`, 160, yOffset);
-    yOffset += 10;
+    // Artikelzeile (mehrzeilige Beschreibung berücksichtigen)
+    const descLines = pdf.splitTextToSize(item.description || '[Beschreibung]', 70);
+    const descHeight = Math.max(descLines.length * LINE_H, LINE_H);
+    const rowHeight = descHeight + 4;
 
-    pdf.setFontSize(12);
-    pdf.text(`Gesamtbetrag: € ${calculateTotal()}`, 130, yOffset);
+    ensureSpace(rowHeight, { withTableHeader: true });
 
-    yOffset += 15;
-    pdf.setFontSize(10);
-    pdf.text('Der Gesamtbetrag ist ab Erhalt der Rechnung zahlbar innerhalb von 7 Tagen ohne Abzug.', 10, yOffset);
-    yOffset += 10;
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(8);
-    pdf.text('Es wird gemäß §19 Abs.1 Umsatzsteuergesetz keine Umsatzsteuer erhoben.', 10, yOffset);
-    yOffset += 5;
-    pdf.text('Wenn nicht anders angegeben entspricht das Leistungsdatum dem Rechnungsdatum.', 10, yOffset);
-    renderFooter(pdf);
-  };
+    // Beschreibung links
+    descLines.forEach((line, idx) => pdf.text(line, 10, yOffset + idx * LINE_H));
+
+    const quantity = parseFloat(item.quantity) || 0;
+    const price = parseFloat(item.price) || 0;
+    runningSubtotal += quantity * price;
+
+    // Zahlen in der ersten Zeile
+    pdf.text(`${quantity}`, 80, yOffset);
+    pdf.text(`€ ${price.toFixed(2)}`, 120, yOffset);
+    pdf.text(`€ ${(quantity * price).toFixed(2)}`, 160, yOffset);
+
+    yOffset += rowHeight;
+  }
+
+  // letzte Zwischensumme
+  ensureSpace(10, { withTableHeader: true });
+  pdf.setFont('helvetica', 'bold');
+  pdf.text(`Zwischensumme: € ${runningSubtotal.toFixed(2)}`, 160, yOffset);
+  yOffset += 10;
+
+  // Gesamtbetrag
+  ensureSpace(15, { withTableHeader: true });
+  pdf.setFontSize(12);
+  pdf.text(`Gesamtbetrag: € ${calculateTotal()}`, 130, yOffset);
+  yOffset += 15;
+
+  // Zahlungsziel
+  ensureSpace(10, { withTableHeader: true });
+  pdf.setFontSize(10);
+  pdf.text('Der Gesamtbetrag ist ab Erhalt der Rechnung zahlbar innerhalb von 7 Tagen ohne Abzug.', 10, yOffset);
+  yOffset += 10;
+
+  // §19 UStG
+  ensureSpace(8, { withTableHeader: true });
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+  pdf.text('Es wird gemäß §19 Abs.1 Umsatzsteuergesetz keine Umsatzsteuer erhoben.', 10, yOffset);
+  yOffset += 5;
+
+  // Leistungsdatum
+  ensureSpace(8, { withTableHeader: true });
+  pdf.text('Wenn nicht anders angegeben entspricht das Leistungsdatum dem Rechnungsdatum.', 10, yOffset);
+
+  // Footer der letzten Seite
+  renderFooter(pdf);
+};
+
 
   useEffect(() => {
     generatePDF();
@@ -429,6 +481,7 @@ function InvoiceGenerator() {
             >
               <MenuItem value="Herr">Herr</MenuItem>
               <MenuItem value="Frau">Frau</MenuItem>
+              <MenuItem value="Fam.">Fam.</MenuItem>
             </TextField>
             <TextField
               label="Kundenname"
